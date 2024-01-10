@@ -1,0 +1,29 @@
+name: HTTPie 4
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: HTTPie 4
+    strategy:
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "pypy-3.8", "pypy-3.9", "pypy-3.10" ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          pip install "git+https://github.com/Ousret/HTTPie.git@feature-tryout-niquests"
+      - name: HTTP3 Forced
+        run: https --http3 pie.dev/get
+      - name: HTTP3 via DNS RR
+        run: https --resolver "doh+cloudflare://" pie.dev/get
+      - name: HTTP2
+        run: https pie.dev/get
+      - name: HTTP3 via Alt-Svc
+        run: https pie.dev/get
